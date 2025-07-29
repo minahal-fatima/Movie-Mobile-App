@@ -1,5 +1,6 @@
 import MovieCard from "@/components/MovieCard";
 import SearchBar from "@/components/SearchBar";
+import TrendingCard from "@/components/TrendingCard";
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { fetchMovies } from "@/services/api";
@@ -35,14 +36,13 @@ export default function Index() {
     })
   );
 
-  // Debug log
-  useEffect(() => {
-    console.log("Trending Movies: ", trendingMovies);
-    console.log("Latest Movies: ", movies);
-  }, [trendingMovies, movies]);
-
   const isLoading = trendingLoading || moviesLoading;
   const isError = trendingError || moviesError;
+
+  useEffect(() => {
+    console.log("Trending Movies:", trendingMovies);
+    console.log("Latest Movies:", movies);
+  }, [trendingMovies, movies]);
 
   return (
     <View className="flex-1 bg-primary">
@@ -82,17 +82,26 @@ export default function Index() {
             <Text className="text-lg text-white font-bold mt-10 mb-3">
               Trending Movies
             </Text>
-            {trendingMovies?.length > 0 ? (
-              trendingMovies.map((item) => (
-                <Text
-                  key={item.movie_id || item.id}
-                  className="text-white text-sm mb-1"
-                >
-                  {item.title}
-                </Text>
-              ))
+
+            {Array.isArray(trendingMovies) && trendingMovies.length > 0 ? (
+              <FlatList
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                className="mb-4 mt-3"
+                data={trendingMovies}
+                contentContainerStyle={{ gap: 26 }}
+                renderItem={({ item, index }) => (
+                  <TrendingCard movie={item} index={index} />
+                )}
+                keyExtractor={(item, index) =>
+                  item.movie_id?.toString() || index.toString()
+                }
+                ItemSeparatorComponent={() => <View className="w-4" />}
+              />
             ) : (
-              <Text className="text-gray-400 text-sm">No trending movies found.</Text>
+              <Text className="text-gray-400 text-sm italic">
+                No trending movies available
+              </Text>
             )}
 
             {/* Latest Movies Section */}
